@@ -56,9 +56,6 @@ func getFiles(directoryPath string) map[string]struct{} {
 func getParagraph(paragraphArray []CleanParagraph) CleanParagraph {
 	rand.Seed(time.Now().UnixNano())
 	var randomParagraphIndex = rand.Intn(len(paragraphArray))
-	// print(paragraphArray[randomParagraphIndex].FileName) // DEBUG
-	// print("\n") // DEBUG
-	// print(paragraphArray[randomParagraphIndex].Text) // DEBUG
 	return paragraphArray[randomParagraphIndex]
 }
 
@@ -73,11 +70,12 @@ func getFileName(filePath string) string {
 
 // Wraps text and adds proper page breaks for bullet points.
 func formatText(text string, wordLimit int) string {
-	wrappedText := textWrap(text, wordLimit)
-	splitBulletedText := strings.Split(wrappedText, "-")
+	modifiedText := strings.ReplaceAll(text, "\n-", "\n||-") // Change appearence of bullet list entries to differentiate them from mid-sentence dashes.
+	wrappedText := textWrap(modifiedText, wordLimit)
+	splitBulletedText := strings.Split(wrappedText, "||-")
 	bulletedText := splitBulletedText[0]
 	for _, line := range splitBulletedText[1:] {
-		bulletedText = bulletedText + "\n- " + strings.ReplaceAll(line, "\n", " ")
+		bulletedText = bulletedText + "\n- " + strings.ReplaceAll(line, "\n", "")
 	}
 	return bulletedText
 }

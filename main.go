@@ -6,28 +6,33 @@ import (
 	"io/ioutil"
 )
 
+// CleanParagraph is a parameter in the Word XML document.
 type CleanParagraph struct {
 	Text     string
 	FileName string
 	FilePath string
 }
 
+// WordDocument is a parameter in the Word XML document.
 type WordDocument struct {
 	XMLName xml.Name `xml:"document" json:"-"`
 	Body    Body     `xml:"body" json:"body"`
 }
 
+// Body is a parameter in the Word XML document.
 type Body struct {
 	XMLName    xml.Name    `xml:"body" json:"-"`
 	Paragraphs []Paragraph `xml:"p" json:"paragraph"`
 }
 
+// Paragraph is a parameter in the Word XML document.
 type Paragraph struct {
 	XMLName             xml.Name            `xml:"p" json:"-"`
 	ParagraphParameters ParagraphParameters `xml:"pPr" json:"paragraphParameters"`
 	Runs                []Run               `xml:"r" json:"runs"`
 }
 
+// ParagraphParameters is a parameter in the Word XML document.
 type ParagraphParameters struct {
 	XMLName             xml.Name            `xml:"pPr" json:"-"`
 	PStyle              PStyle              `xml:"pStyle" json:"pStyle"`
@@ -35,62 +40,72 @@ type ParagraphParameters struct {
 	RunParameters       RunParameters       `xml:"rPr" json:"runParameters"`
 }
 
+// NumberingParameters is a parameter in the Word XML document.
 type NumberingParameters struct {
 	XMLName     xml.Name    `xml:"numPr" json:"-"`
 	NumberingID NumberingID `xml:"numId" json:"numberingID"`
 }
 
+// NumberingID is a parameter in the Word XML document.
 type NumberingID struct {
 	XMLName        xml.Name `xml:"numId" json:"-"`
 	NumberingIDInt int      `xml:"val,attr" json:"numberingIDString"`
 }
 
+// PStyle is a parameter in the Word XML document.
 type PStyle struct {
 	XMLName      xml.Name `xml:"pStyle" json:"-"`
-	PStyleString string   `xml:"val,attr" json:"PStyleString, omitempty"`
+	PStyleString string   `xml:"val,attr" json:"PStyleString,omitempty"`
 }
 
+// Run is a parameter in the Word XML document.
 type Run struct {
 	XMLName       xml.Name      `xml:"r" json:"-"`
 	RunParameters RunParameters `xml:"rPr" json:"runParameters"`
 	TextPart      string        `xml:"t" json:"textPart"`
 }
 
+// RunParameters is a parameter in the Word XML document.
 type RunParameters struct {
 	XMLName           xml.Name          `xml:"rPr" json:"-"`
-	Italics           Italics           `xml:"i" json:"italics, omitempty"`
-	Bold              Bold              `xml:"b" json:"bold, omitempty"`
+	Italics           Italics           `xml:"i" json:"italics,omitempty"`
+	Bold              Bold              `xml:"b" json:"bold,omitempty"`
 	TextSize          TextSize          `xml:"sz" json:"textSize,omitempty"`
-	Language          Language          `xml:"lang" json:"language, omitempty"`
-	VerticalAlignment VerticalAlignment `xml:"vertAlign" json:"verticalAlignment, omitempty"`
+	Language          Language          `xml:"lang" json:"language,omitempty"`
+	VerticalAlignment VerticalAlignment `xml:"vertAlign" json:"verticalAlignment,omitempty"`
 }
 
+// Italics is a parameter in the Word XML document.
 type Italics struct {
 	XMLName xml.Name `xml:"i" json:"-"`
 }
 
+// Bold is a parameter in the Word XML document.
 type Bold struct {
 	XMLName xml.Name `xml:"b" json:"-"`
 }
 
+// TextSize is a parameter in the Word XML document.
 type TextSize struct {
 	XMLName        xml.Name `xml:"sz" json:"-"`
-	TextSizeString int      `xml:"val,attr" json:"textSizeString, omitempty"`
+	TextSizeString int      `xml:"val,attr" json:"textSizeString,omitempty"`
 }
 
+// Language is a parameter in the Word XML document.
 type Language struct {
 	XMLName        xml.Name `xml:"lang" json:"-"`
-	LanguageString string   `xml:"val,attr" json:"languageString, omitempty"`
+	LanguageString string   `xml:"val,attr" json:"languageString,omitempty"`
 }
 
+// VerticalAlignment is a parameter in the Word XML document.
 type VerticalAlignment struct {
 	XMLName                 xml.Name `xml:"vertAlign" json:"-"`
-	VerticalAlignmentString string   `xml:"val,attr" json:"verticalAlignmentString, omitempty"`
+	VerticalAlignmentString string   `xml:"val,attr" json:"verticalAlignmentString,omitempty"`
 }
 
 func main() {
-	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
-	//const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Test"
+	// const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
+	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books\\Test"
 	fileMap := getFiles(directoryPath)
 	paragraphMap := map[string]string{}
 	var paragraphArray = []CleanParagraph{}
@@ -113,7 +128,6 @@ func main() {
 		paragraphCache := ""
 		additionState := false
 		startIndex := 0
-		//endIndex := 5
 		// Loops through all paragraphs in a Word document.
 		for paragraphIndex, paragraph := range wordDocument.Body.Paragraphs[startIndex:] {
 			paragraphText := ""
@@ -164,10 +178,11 @@ func main() {
 	}
 
 	// Selects a random paragraph from the collection of all paragraphs.
-	randomParagraph := getParagraph(paragraphArray)
+	// randomParagraph := getParagraph(paragraphArray)
+	randomParagraph := paragraphArray[29]
 
 	// Wraps text and adds proper page breaks for bullet points.
-	paragraphText := formatText(randomParagraph.Text, 11)
+	paragraphText := formatText(randomParagraph.Text, 13)
 
-	drawInterface(randomParagraph.FileName, paragraphText, randomParagraph)
+	drawInterface(randomParagraph.FileName, paragraphText, randomParagraph, paragraphArray)
 }
