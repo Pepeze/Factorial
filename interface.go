@@ -25,7 +25,7 @@ func drawInterface(fileName string, paragraph string, randomParagraph CleanParag
 	line2.StrokeWidth = 2
 
 	// Adds the title of the text file.
-	fileNameText := canvas.NewText(fileName, color.White)
+	fileNameText := widget.NewLabel(fileName)
 	fileNameText.Alignment = fyne.TextAlignCenter
 	containerFileName := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), layout.NewSpacer(), fileNameText, layout.NewSpacer())
 
@@ -48,6 +48,7 @@ func drawInterface(fileName string, paragraph string, randomParagraph CleanParag
 		newRandomParagraph := getParagraph(paragraphArray)
 		newParagraphText := formatText(newRandomParagraph.Text, 11)
 		paragraphText.SetText(newParagraphText)
+		fileNameText.SetText(newRandomParagraph.FileName)
 	})
 	containerRefreshButton := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
 		layout.NewSpacer(), refreshButton, layout.NewSpacer())

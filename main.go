@@ -104,8 +104,8 @@ type VerticalAlignment struct {
 }
 
 func main() {
-	// const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
-	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books\\Test"
+	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
+	// const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Factorial\\Test"
 	fileMap := getFiles(directoryPath)
 	paragraphMap := map[string]string{}
 	var paragraphArray = []CleanParagraph{}
@@ -127,16 +127,15 @@ func main() {
 
 		paragraphCache := ""
 		additionState := false
-		startIndex := 0
 		// Loops through all paragraphs in a Word document.
-		for paragraphIndex, paragraph := range wordDocument.Body.Paragraphs[startIndex:] {
+		for paragraphIndex, paragraph := range wordDocument.Body.Paragraphs {
 			paragraphText := ""
-			lastTextSize := wordDocument.Body.Paragraphs[max(0, startIndex+paragraphIndex-1)].ParagraphParameters.RunParameters.TextSize.TextSizeString
+			lastTextSize := wordDocument.Body.Paragraphs[max(0, paragraphIndex-1)].ParagraphParameters.RunParameters.TextSize.TextSizeString
 			textSize := paragraph.ParagraphParameters.RunParameters.TextSize.TextSizeString
 
-			lastNumberingID := wordDocument.Body.Paragraphs[max(0, startIndex+paragraphIndex-1)].ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
+			lastNumberingID := wordDocument.Body.Paragraphs[max(0, paragraphIndex-1)].ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
 			numberingID := paragraph.ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
-			nextNumberingID := wordDocument.Body.Paragraphs[min(len(wordDocument.Body.Paragraphs)-1, startIndex+paragraphIndex+1)].ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
+			nextNumberingID := wordDocument.Body.Paragraphs[min(len(wordDocument.Body.Paragraphs)-1, paragraphIndex+1)].ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
 
 			// Obtains all text from paragraph, adding superscript and subscripts.
 			for _, run := range paragraph.Runs {
@@ -178,8 +177,8 @@ func main() {
 	}
 
 	// Selects a random paragraph from the collection of all paragraphs.
-	// randomParagraph := getParagraph(paragraphArray)
-	randomParagraph := paragraphArray[29]
+	randomParagraph := getParagraph(paragraphArray)
+	// randomParagraph := paragraphArray[29] // DEBUG
 
 	// Wraps text and adds proper page breaks for bullet points.
 	paragraphText := formatText(randomParagraph.Text, 13)
