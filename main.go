@@ -181,7 +181,7 @@ func main() {
 	// randomParagraph := paragraphArray[29] // DEBUG
 
 	// Wraps text and adds proper page breaks for bullet points.
-	paragraphText := formatText(randomParagraph.Text, 13)
+	paragraphText := formatText(randomParagraph.Text, 11)
 
 	drawInterface(randomParagraph.FileName, paragraphText, randomParagraph, paragraphArray)
 }

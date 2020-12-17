@@ -75,6 +75,8 @@ func (customTheme) ScrollBarColor() color.Color {
 
 func (customTheme) ShadowColor() color.Color {
 	return &color.RGBA{0xcc, 0xcc, 0xcc, 0xcc}
+	// return grey2
+	// return color.White
 }
 
 func (customTheme) TextSize() int {

@@ -13,6 +13,9 @@ import (
 )
 
 func drawInterface(fileName string, paragraph string, randomParagraph CleanParagraph, paragraphArray []CleanParagraph) {
+	screenWidth := 1920
+	screenHeight := 1080
+
 	// Creates and runs the user interface.
 	windowsApp := app.New()
 	windowsApp.Settings().SetTheme(customTheme{})
@@ -25,14 +28,14 @@ func drawInterface(fileName string, paragraph string, randomParagraph CleanParag
 	line2.StrokeWidth = 2
 
 	// Adds the title of the text file.
-	fileNameText := widget.NewLabel(fileName)
-	fileNameText.Alignment = fyne.TextAlignCenter
-	containerFileName := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), layout.NewSpacer(), fileNameText, layout.NewSpacer())
+	fileNameLabel := widget.NewLabel(fileName)
+	fileNameLabel.Alignment = fyne.TextAlignCenter
+	containerFileName := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), layout.NewSpacer(), fileNameLabel, layout.NewSpacer())
 
 	// Adds the paragraph text.
-	paragraphText := widget.NewLabel(paragraph)
+	paragraphLabel := widget.NewLabel(paragraph)
 	containerParagraph := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
-		layout.NewSpacer(), paragraphText, layout.NewSpacer())
+		layout.NewSpacer(), paragraphLabel, layout.NewSpacer())
 
 	// Adds button to go to the target file.
 	documentButton := widget.NewButton("Open", func() {
@@ -45,23 +48,31 @@ func drawInterface(fileName string, paragraph string, randomParagraph CleanParag
 
 	// Adds button to obtain a new paragraph.
 	refreshButton := widget.NewButton("Refresh", func() {
-		newRandomParagraph := getParagraph(paragraphArray)
-		newParagraphText := formatText(newRandomParagraph.Text, 11)
-		paragraphText.SetText(newParagraphText)
-		fileNameText.SetText(newRandomParagraph.FileName)
+		randomParagraph = getParagraph(paragraphArray)
+		paragraphText := formatText(randomParagraph.Text, 11)
+		paragraphLabel.SetText(paragraphText)
+		fileNameLabel.SetText(randomParagraph.FileName)
 	})
 	containerRefreshButton := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
 		layout.NewSpacer(), refreshButton, layout.NewSpacer())
+
+	// Adds button to exit the program.
+	exitButton := widget.NewButton("Exit", func() {
+		windowsApp.Quit()
+	})
+	containerExitButton := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
+		layout.NewSpacer(), exitButton, layout.NewSpacer())
 
 	// Creates a window containing all of the elements.
 	window.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(),
 		containerFileName, line1,
 		containerParagraph, line2,
 		containerDocumentButton,
-		containerRefreshButton))
+		containerRefreshButton,
+		containerExitButton))
 
 	// Resizes and shows the interface.
-	window.Resize(fyne.NewSize(400, 0))
+	window.Resize(fyne.NewSize(screenWidth, screenHeight))
 	window.CenterOnScreen()
 	window.ShowAndRun()
 }
