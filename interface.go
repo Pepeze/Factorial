@@ -34,8 +34,10 @@ func drawInterface(fileName string, paragraph string, randomParagraph CleanParag
 
 	// Adds the paragraph text.
 	paragraphLabel := widget.NewLabel(paragraph)
+	scrollableWindow := widget.NewVScrollContainer(paragraphLabel)
+	scrollableWindow.SetMinSize(fyne.NewSize(500, 500))
 	containerParagraph := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
-		layout.NewSpacer(), paragraphLabel, layout.NewSpacer())
+		layout.NewSpacer(), scrollableWindow, layout.NewSpacer())
 
 	// Adds button to go to the target file.
 	documentButton := widget.NewButton("Open", func() {

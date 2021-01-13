@@ -104,8 +104,8 @@ type VerticalAlignment struct {
 }
 
 func main() {
-	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
-	// const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Factorial\\Test"
+	// const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
+	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Factorial\\Test"
 	fileMap := getFiles(directoryPath)
 	paragraphMap := map[string]string{}
 	var paragraphArray = []CleanParagraph{}
