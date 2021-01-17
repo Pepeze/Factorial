@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"strconv"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/canvas"
@@ -54,9 +55,15 @@ func getFiles(directoryPath string) map[string]struct{} {
 
 // Returns a paragraph from the paragraph array.
 func getParagraph(paragraphArray []CleanParagraph) CleanParagraph {
+	// Selects a random paragraph.
 	rand.Seed(time.Now().UnixNano())
-	var randomParagraphIndex = rand.Intn(len(paragraphArray))
-	return paragraphArray[randomParagraphIndex]
+	randomParagraphIndex := rand.Intn(len(paragraphArray))
+	randomParagraph := paragraphArray[randomParagraphIndex]
+
+	// Wraps text and adds proper page breaks for bullet points.
+	randomParagraph.Text = formatText(randomParagraph.Text, 11)
+
+	return randomParagraph
 }
 
 // Returns file name without extension.
@@ -75,9 +82,45 @@ func formatText(text string, wordLimit int) string {
 	splitBulletedText := strings.Split(wrappedText, "||-")
 	bulletedText := splitBulletedText[0]
 	for _, line := range splitBulletedText[1:] {
-		bulletedText = bulletedText + "\n- " + strings.ReplaceAll(line, "\n", "")
+		bulletedText += "\n- " + strings.ReplaceAll(line, "\n", "")
 	}
 	return bulletedText
+}
+
+// Checks to see if a string is a numerical value.
+func isNumeric(inputString string) bool {
+	_, err := strconv.ParseFloat(inputString, 64)
+	return err == nil
+ }
+
+func getParagraphText(runs []Run) string {
+	paragraphText := ""
+	boldCache := ""
+	for _, run := range runs {
+		boldIndicator := run.RunParameters.Bold.XMLName.Local
+
+		// Adds bold text to special cache.
+		if boldIndicator == "b" {
+			boldCache += run.TextPart
+		}
+
+		// Returns string if it is on correct date format, indicated by a starting digit and ending semicolon.
+		if len(strings.TrimSpace(boldCache)) != 0 {
+			trimmedBoldCache := strings.TrimSpace(boldCache)
+			if boldIndicator == "b" && isNumeric(string(trimmedBoldCache[0])) && trimmedBoldCache[len(trimmedBoldCache)-1:] == ":" {
+				return boldCache
+			}
+		}
+
+		if run.RunParameters.VerticalAlignment.VerticalAlignmentString == "superscript" {
+			paragraphText += "^"
+		}
+		if run.RunParameters.VerticalAlignment.VerticalAlignmentString == "subscript" {
+			paragraphText += "_"
+		}
+		paragraphText += run.TextPart
+	}
+	return paragraphText
 }
 
 // Returns the smallest of two integers.

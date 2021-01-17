@@ -82,7 +82,8 @@ type Italics struct {
 
 // Bold is a parameter in the Word XML document.
 type Bold struct {
-	XMLName xml.Name `xml:"b" json:"-"`
+	XMLName    xml.Name `xml:"b" json:"-"`
+	BoldString string   `xml:"val,attr" json:"boldString,omitempty"`
 }
 
 // TextSize is a parameter in the Word XML document.
@@ -104,6 +105,7 @@ type VerticalAlignment struct {
 }
 
 func main() {
+	// Initialization of global variables.
 	// const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Other\\Interesting\\Books"
 	const directoryPath = "C:\\Users\\Jesper\\Dropbox\\Factorial\\Test"
 	fileMap := getFiles(directoryPath)
@@ -129,59 +131,63 @@ func main() {
 		additionState := false
 		// Loops through all paragraphs in a Word document.
 		for paragraphIndex, paragraph := range wordDocument.Body.Paragraphs {
-			paragraphText := ""
+			// Retrieves text sizes.
 			lastTextSize := wordDocument.Body.Paragraphs[max(0, paragraphIndex-1)].ParagraphParameters.RunParameters.TextSize.TextSizeString
 			textSize := paragraph.ParagraphParameters.RunParameters.TextSize.TextSizeString
 
+			// Retrieves numbering IDs, used for determining if text is in a bulleted list or not.
 			lastNumberingID := wordDocument.Body.Paragraphs[max(0, paragraphIndex-1)].ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
 			numberingID := paragraph.ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
 			nextNumberingID := wordDocument.Body.Paragraphs[min(len(wordDocument.Body.Paragraphs)-1, paragraphIndex+1)].ParagraphParameters.NumberingParameters.NumberingID.NumberingIDInt
 
 			// Obtains all text from paragraph, adding superscript and subscripts.
-			for _, run := range paragraph.Runs {
-				if run.RunParameters.VerticalAlignment.VerticalAlignmentString == "superscript" {
-					paragraphText = paragraphText + "^"
+			paragraphText := getParagraphText(paragraph.Runs)
+
+			boldIndicator := false
+			if len(paragraphText) != 0 {
+				if isNumeric(string(paragraphText[0])) && paragraphText[len(paragraphText)-1:] == ":" {
+					additionState = true
+					boldIndicator = true
+				} else {
+					additionState = false
 				}
-				if run.RunParameters.VerticalAlignment.VerticalAlignmentString == "subscript" {
-					paragraphText = paragraphText + "_"
-				}
-				paragraphText = paragraphText + run.TextPart
 			}
 
 			// Greater than or equal to as the previous paragraph can either be a list or not.
+			// Means that the current paragraph should be added with the previous one.
 			if numberingID-lastNumberingID >= 1 && lastTextSize <= 24 {
 				additionState = true
-				// Smaller than or equal to as the previous paragraph can either be a list or not.
-			} else if numberingID-lastNumberingID <= -1 {
-				additionState = false
-				if textSize <= 12 && len(paragraphCache) != 0 {
-					paragraphMap[paragraphCache] = getFileName(filePath)
+			// Smaller than or equal to as the previous paragraph can either be a list or not.
+			// Means that we now stepped out of a bullet list and needs to add the paragraph to the array.
+			} else if numberingID-lastNumberingID <= -1 && textSize <= 12 && len(paragraphCache) != 0 {
+					paragraphMap[paragraphCache] = fileName
 					cleanParagraph := CleanParagraph{Text: paragraphCache, FileName: fileName, FilePath: filePath}
 					paragraphArray = append(paragraphArray, cleanParagraph)
-				}
-				paragraphCache = ""
+					additionState = false
+					paragraphCache = ""
 			}
-
-			if additionState == true && textSize <= 24 {
-				paragraphCache = paragraphCache + "\n- " + paragraphText
+			// Special case for when entries from Days are added.
+			if additionState == true && boldIndicator == true {
+				paragraphCache += "\n " + paragraphText
+			// Adds current bullet paragraph to the previous one through the cache.
+			} else if additionState == true && textSize <= 24 {
+				paragraphCache += "\n- " + paragraphText
+			// Simply adds the paragraph text to the array if no bullet lists exist.
 			} else {
-				paragraphCache = paragraphText
+				paragraphCache += paragraphText
 				if nextNumberingID-numberingID < 1 && textSize <= 24 && len(paragraphCache) != 0 {
-					paragraphMap[paragraphCache] = getFileName(filePath)
+					paragraphMap[paragraphCache] = fileName
 					cleanParagraph := CleanParagraph{Text: paragraphCache, FileName: fileName, FilePath: filePath}
 					paragraphArray = append(paragraphArray, cleanParagraph)
 					paragraphCache = ""
-				}
-			}
+				}	
+			} 
+				
 		}
 	}
 
 	// Selects a random paragraph from the collection of all paragraphs.
 	randomParagraph := getParagraph(paragraphArray)
-	// randomParagraph := paragraphArray[29] // DEBUG
 
-	// Wraps text and adds proper page breaks for bullet points.
-	paragraphText := formatText(randomParagraph.Text, 11)
-
-	drawInterface(randomParagraph.FileName, paragraphText, randomParagraph, paragraphArray)
+	drawInterface(randomParagraph, paragraphArray)
 }
